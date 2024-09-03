@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Lodasharp": {
+      "commandName": "Project",
+      "commandLineArgs": "World"
+    }
+  }
+}
