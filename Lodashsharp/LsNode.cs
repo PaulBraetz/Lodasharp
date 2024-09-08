@@ -117,8 +117,8 @@ public readonly partial struct LsNode : IEnumerable<(String, LsNode)>
 
             result = result.TryAsLsArray(out var arr) && pathIsIndex
                 ? arr.Get(index)
-                : result.TryAsLsObject(out var jsObj) && !pathIsIndex
-                ? jsObj.Get(path)
+                : result.TryAsLsObject(out var LsObj) && !pathIsIndex
+                ? LsObj.Get(path)
                 : new Unit();
         }
     }
@@ -202,5 +202,5 @@ public readonly partial struct LsNode : IEnumerable<(String, LsNode)>
         u => null);
     static readonly JsonSerializerOptions _options = new() { WriteIndented = true, AllowTrailingCommas = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
     public override String ToString() => JsonSerializer.Serialize(this, _options);
-    public static LsNode FromString([StringSyntax(StringSyntaxAttribute.Json)] String json) => JsonSerializer.Deserialize<LsNode>(json, _options);
+    public static LsNode FromString([StringSyntax(StringSyntaxAttribute.Json)] String Json) => JsonSerializer.Deserialize<LsNode>(Json, _options);
 }
