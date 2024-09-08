@@ -6,29 +6,29 @@ using System.Text;
 
 using RhoMicro.CodeAnalysis;
 
-using static JsArray;
-using static JsObject;
+using static LsArray;
+using static LsObject;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Diagnostics.CodeAnalysis;
 
-[UnionType<String, Int32, Boolean, Double, JsObject, JsArray, JsFunc, Unit>]
+[UnionType<String, Int32, Boolean, Double, LsObject, LsArray, LsFunc, Unit>]
 [UnionTypeSettings(ToStringSetting = ToStringSetting.None)]
-[CollectionBuilder(typeof(JsObject), nameof(JsObject.Create))]
+[CollectionBuilder(typeof(LsObject), nameof(LsObject.Create))]
 [JsonConverter(typeof(Converter))]
-public readonly partial struct JsNode : IEnumerable<(String, JsNode)>
+public readonly partial struct LsNode : IEnumerable<(String, LsNode)>
 {
-    sealed class Converter : JsonConverter<JsNode>
+    sealed class Converter : JsonConverter<LsNode>
     {
-        public override JsNode Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override LsNode Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var node = JsonNode.Parse(ref reader);
             var result = FromJson(node);
 
             return result;
         }
-        public override void Write(Utf8JsonWriter writer, JsNode value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, LsNode value, JsonSerializerOptions options)
         {
             var obj = value.ToJson();
             if(obj is null)
@@ -38,34 +38,34 @@ public readonly partial struct JsNode : IEnumerable<(String, JsNode)>
         }
     }
 
-    public static JsNode Create([UnionTypeFactory] String value)
+    public static LsNode Create([UnionTypeFactory] String value)
     {
         if(value.StartsWith('$'))
-            return new JsNode(value[1..]);
+            return new LsNode(value[1..]);
 
         try
         {
-            return JsonSerializer.Deserialize<JsNode>(value, _options);
+            return JsonSerializer.Deserialize<LsNode>(value, _options);
         } catch(JsonException)
         {
-            return new JsNode(value);
+            return new LsNode(value);
         }
     }
 
-    public IEnumerator<(String, JsNode)> GetEnumerator() =>
+    public IEnumerator<(String, LsNode)> GetEnumerator() =>
         ( IsUnit
         ? []
-        : IsJsObject
-        ? AsJsObject
+        : IsLsObject
+        ? AsLsObject
         : [("", this)] ).GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator() => ( (IEnumerable<(String, JsNode)>)this ).GetEnumerator();
-    private JsNode GetCore(Path path, out JsNode parent)
+    IEnumerator IEnumerable.GetEnumerator() => ( (IEnumerable<(String, LsNode)>)this ).GetEnumerator();
+    private LsNode GetCore(Path path, out LsNode parent)
     {
         if(path.TryAsInt32(out var index))
         {
 
-            if(TryAsJsArray(out var arr))
+            if(TryAsLsArray(out var arr))
             {
                 parent = this;
                 return arr.Get(index);
@@ -79,10 +79,10 @@ public readonly partial struct JsNode : IEnumerable<(String, JsNode)>
 
         return result;
     }
-    private JsNode GetFromStringPath(String path, out JsNode parent)
+    private LsNode GetFromStringPath(String path, out LsNode parent)
     {
         parent = new Unit();
-        JsNode result = AsJsObject!;
+        LsNode result = AsLsObject!;
         var i = 0;
         var buffer = new StringBuilder(2);
         while(i < path.Length)
@@ -107,7 +107,7 @@ public readonly partial struct JsNode : IEnumerable<(String, JsNode)>
 
         return result;
 
-        void getProperty(ref JsNode parent)
+        void getProperty(ref LsNode parent)
         {
             var path = buffer.ToString();
             var pathIsIndex = Int32.TryParse(path, out var index);
@@ -115,22 +115,22 @@ public readonly partial struct JsNode : IEnumerable<(String, JsNode)>
 
             parent = result;
 
-            result = result.TryAsJsArray(out var arr) && pathIsIndex
+            result = result.TryAsLsArray(out var arr) && pathIsIndex
                 ? arr.Get(index)
-                : result.TryAsJsObject(out var jsObj) && !pathIsIndex
+                : result.TryAsLsObject(out var jsObj) && !pathIsIndex
                 ? jsObj.Get(path)
                 : new Unit();
         }
     }
-    public JsNode Get(Path path) => GetCore(path, out _);
-    public JsNode With(Path path, JsNode value)
+    public LsNode Get(Path path) => GetCore(path, out _);
+    public LsNode With(Path path, LsNode value)
     {
         if(path.IsInt32)
         {
-            if(!IsJsArray)
+            if(!IsLsArray)
                 return Arr().With(path.AsInt32, value);
 
-            return AsJsArray.With(path.AsInt32, value);
+            return AsLsArray.With(path.AsInt32, value);
         }
 
         var accessor = path.AsString;
@@ -139,47 +139,47 @@ public readonly partial struct JsNode : IEnumerable<(String, JsNode)>
 
         if(Int32.TryParse(firstAccessor, out var index))
         {
-            if(!IsJsArray)
+            if(!IsLsArray)
                 return Arr().With(index, value);
 
-            return AsJsArray.With(index, value);
+            return AsLsArray.With(index, value);
         }
 
         if(periodIndex == -1)
         {
-            if(!IsJsObject)
+            if(!IsLsObject)
                 return [(firstAccessor, value)];
 
             //leaf
-            return AsJsObject.With(firstAccessor, value);
+            return AsLsObject.With(firstAccessor, value);
         } else
         {
             var accessorRemainder = accessor[( periodIndex + 1 )..];
 
-            if(!IsJsObject)
+            if(!IsLsObject)
                 return [(firstAccessor, Obj().With(accessorRemainder, value))];
 
             //node
             var node = this;
 
-            if(node.AsJsObject.Get(firstAccessor).IsUnit)
+            if(node.AsLsObject.Get(firstAccessor).IsUnit)
             {
                 node = node.With(firstAccessor, []);
             }
 
-            var prop = node.AsJsObject!.Get(firstAccessor).With(accessorRemainder, value);
+            var prop = node.AsLsObject!.Get(firstAccessor).With(accessorRemainder, value);
 
             return node.With(firstAccessor, prop);
         }
     }
-    public JsNode Call(JsNode arg) => TryAsJsFunc(out var f) ? f.Invoke(new Unit(), arg) : new Unit();
-    public JsNode Call(Path path, JsNode arg) => GetCore(path, out var parent).TryAsJsFunc(out var f) ? f.Invoke(parent, arg) : new Unit();
-    public static JsNode FromJson(JsonNode? node)
+    public LsNode Call(LsNode arg) => TryAsLsFunc(out var f) ? f.Invoke(new Unit(), arg) : new Unit();
+    public LsNode Call(Path path, LsNode arg) => GetCore(path, out var parent).TryAsLsFunc(out var f) ? f.Invoke(parent, arg) : new Unit();
+    public static LsNode FromJson(JsonNode? node)
     {
-        JsNode result = node switch
+        LsNode result = node switch
         {
-            JsonArray arr => JsArray.FromJson(arr),
-            JsonObject obj => JsObject.FromJson(obj),
+            JsonArray arr => LsArray.FromJson(arr),
+            JsonObject obj => LsObject.FromJson(obj),
             JsonValue val =>
                 val.TryGetValue(out String? s) ? s is null ? new Unit() : s :
                 val.TryGetValue(out Int32 i) ? i :
@@ -202,5 +202,5 @@ public readonly partial struct JsNode : IEnumerable<(String, JsNode)>
         u => null);
     static readonly JsonSerializerOptions _options = new() { WriteIndented = true, AllowTrailingCommas = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
     public override String ToString() => JsonSerializer.Serialize(this, _options);
-    public static JsNode FromString([StringSyntax(StringSyntaxAttribute.Json)] String json) => JsonSerializer.Deserialize<JsNode>(json, _options);
+    public static LsNode FromString([StringSyntax(StringSyntaxAttribute.Json)] String json) => JsonSerializer.Deserialize<LsNode>(json, _options);
 }

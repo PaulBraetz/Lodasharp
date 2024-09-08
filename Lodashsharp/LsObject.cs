@@ -5,14 +5,14 @@ using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Nodes;
 
-[CollectionBuilder(typeof(JsObject), nameof(Obj))]
-public sealed class JsObject : IEnumerable<(String, JsNode)>
+[CollectionBuilder(typeof(LsObject), nameof(Obj))]
+public sealed class LsObject : IEnumerable<(String, LsNode)>
 {
-    private readonly IImmutableDictionary<String, JsNode> _props;
+    private readonly IImmutableDictionary<String, LsNode> _props;
 
-    private JsObject(IImmutableDictionary<String, JsNode> props) => _props = props;
-    public static JsNode Create(params ReadOnlySpan<(String, JsNode)> values) => Obj(values);
-    public static JsObject Obj(params ReadOnlySpan<(String, JsNode)> values)
+    private LsObject(IImmutableDictionary<String, LsNode> props) => _props = props;
+    public static LsNode Create(params ReadOnlySpan<(String, LsNode)> values) => Obj(values);
+    public static LsObject Obj(params ReadOnlySpan<(String, LsNode)> values)
     {
         var props = values
             .ToArray()
@@ -28,22 +28,22 @@ public sealed class JsObject : IEnumerable<(String, JsNode)>
             })
             .ToImmutableDictionary();
 
-        var result = new JsObject(props);
+        var result = new LsObject(props);
 
         return result;
     }
-    public IEnumerator<(String, JsNode)> GetEnumerator() => _props.Select(kvp => (kvp.Key, kvp.Value)).GetEnumerator();
+    public IEnumerator<(String, LsNode)> GetEnumerator() => _props.Select(kvp => (kvp.Key, kvp.Value)).GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => ( (IEnumerable)_props ).GetEnumerator();
-    public static JsObject FromJson(JsonObject obj)
+    public static LsObject FromJson(JsonObject obj)
     {
-        var resultProps = ImmutableDictionary.CreateBuilder<String, JsNode>();
+        var resultProps = ImmutableDictionary.CreateBuilder<String, LsNode>();
 
         foreach(var (prop, value) in obj)
         {
-            resultProps.Add(prop, JsNode.FromJson(value));
+            resultProps.Add(prop, LsNode.FromJson(value));
         }
 
-        var result = new JsObject(resultProps.ToImmutable());
+        var result = new LsObject(resultProps.ToImmutable());
 
         return result;
     }
@@ -54,15 +54,15 @@ public sealed class JsObject : IEnumerable<(String, JsNode)>
             acc.Add(value.Key, value.Value.ToJson());
             return acc;
         });
-    public JsNode Get(String prop) => _props.TryGetValue(prop, out var value) ? value : new Unit();
-    public JsNode With(String prop, JsNode value)
+    public LsNode Get(String prop) => _props.TryGetValue(prop, out var value) ? value : new Unit();
+    public LsNode With(String prop, LsNode value)
     {
         var isOverwrite = _props.TryGetValue(prop, out var existing);
         if(isOverwrite && existing == value)
             return this;
 
         var resultProps = _props.SetItem(prop, value);
-        var result = new JsObject(resultProps);
+        var result = new LsObject(resultProps);
 
         return result;
     }
