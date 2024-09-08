@@ -9,7 +9,6 @@ using System.Text.Json.Nodes;
 public sealed class JsObject : IEnumerable<(String, JsNode)>
 {
     private readonly IImmutableDictionary<String, JsNode> _props;
-
     private JsObject(IImmutableDictionary<String, JsNode> props) => _props = props;
     public static JsNode Create(params ReadOnlySpan<(String, JsNode)> values) => Obj(values);
     public static JsObject Obj(params ReadOnlySpan<(String, JsNode)> values)
@@ -63,6 +62,37 @@ public sealed class JsObject : IEnumerable<(String, JsNode)>
 
         var resultProps = _props.SetItem(prop, value);
         var result = new JsObject(resultProps);
+
+        return result;
+    }
+    public JsNode With(IEnumerable<(String, JsNode)> props)
+    {
+        var kvps = props.Select(t => KeyValuePair.Create(t.Item1, t.Item2));
+        var result = WithCore(kvps);
+
+        return result;
+    }
+    private JsObject WithCore(IEnumerable<KeyValuePair<String, JsNode>> kvps)
+    {
+        var resultProps = _props.SetItems(kvps);
+        var result = new JsObject(resultProps);
+
+        return result;
+    }
+    public JsNode With(IEnumerable<JsNode> nodes) => With(nodes.SelectMany(n => n));
+    private JsObject WithCore(JsNode node)
+    {
+        var result = node.TryAsJsObject(out var obj)
+            ? WithCore(obj._props)
+            : WithCore([("", node)]);
+
+        return result;
+    }
+    public JsNode With(params ReadOnlySpan<JsNode> nodes)
+    {
+        var result = this;
+        foreach(var node in nodes)
+            result = result.WithCore(node);
 
         return result;
     }
