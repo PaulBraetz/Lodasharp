@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Nodes;
+using System.Xml.Linq;
 
 [CollectionBuilder(typeof(LsObject), nameof(Obj))]
 public sealed class LsObject : IEnumerable<(String, LsNode)>
@@ -63,6 +64,37 @@ public sealed class LsObject : IEnumerable<(String, LsNode)>
 
         var resultProps = _props.SetItem(prop, value);
         var result = new LsObject(resultProps);
+
+        return result;
+    }
+    public LsNode With(IEnumerable<(String, LsNode)> props)
+    {
+        var kvps = props.Select(t => KeyValuePair.Create(t.Item1, t.Item2));
+        var result = WithCore(kvps);
+
+        return result;
+    }
+    private LsObject WithCore(IEnumerable<KeyValuePair<String, LsNode>> kvps)
+    {
+        var resultProps = _props.SetItems(kvps);
+        var result = new LsObject(resultProps);
+
+        return result;
+    }
+    public LsNode With(IEnumerable<LsNode> nodes) => With(nodes.SelectMany(n => n));
+    private LsObject WithCore(LsNode node)
+    {
+        var result = node.TryAsLsObject(out var obj)
+            ? WithCore(obj._props)
+            : WithCore([("", node)]);
+
+        return result;
+    }
+    public LsNode With(params ReadOnlySpan<LsNode> nodes)
+    {
+        var result = this;
+        foreach(var node in nodes)
+            result = result.WithCore(node);
 
         return result;
     }
