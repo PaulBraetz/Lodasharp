@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Nodes;
+using System.Xml.Linq;
 
 [CollectionBuilder(typeof(LsObject), nameof(Obj))]
 public sealed class LsObject : IEnumerable<(String, LsNode)>
