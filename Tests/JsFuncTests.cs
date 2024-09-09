@@ -6,13 +6,13 @@ using Lodasharp;
 
 using Microsoft.VisualStudio.TestPlatform.Common.Filtering;
 
-public class JsFuncTests
+public class LsFuncTests
 {
     [Fact]
     public void This_parameter_is_contextual_direct_parent()
     {
-        JsNode expectedThis = [("a","foo")];
-        JsFunc identity = (@this,_)=>@this;
+        LsNode expectedThis = [("a","foo")];
+        LsFunc identity = (@this,_)=>@this;
         expectedThis = expectedThis.With("identity", identity);
 
         var actualThis = expectedThis.Call("identity", new Unit());
@@ -22,11 +22,11 @@ public class JsFuncTests
     [Fact]
     public void This_parameter_is_contextual_nested_parent()
     {
-        JsNode expectedThis = [("a", "foo")];
-        JsFunc identity = (@this, _) => @this;
+        LsNode expectedThis = [("a", "foo")];
+        LsFunc identity = (@this, _) => @this;
         expectedThis = expectedThis.With("identity", identity);
 
-        JsNode container = [("nested", expectedThis)];
+        LsNode container = [("nested", expectedThis)];
 
         var actualThis = container.Call("nested.identity", new Unit());
 
@@ -39,14 +39,14 @@ public class JsFuncTests
     [InlineData("$true", "nested")]
     [InlineData("""{"a":"foo"}""", "nested.nestedAlso")]
     public void This_parameter_is_contextual_nested_parent_1(
-        String expectedThisJson,
+        String expectedThisLson,
         String nestedPath)
     {
-        JsNode expectedThis = expectedThisJson;
-        JsFunc identity = (@this, _) => @this;
+        LsNode expectedThis = expectedThisLson;
+        LsFunc identity = (@this, _) => @this;
         expectedThis = expectedThis.With("identity", identity);
 
-        var container = ((JsNode)[]).With(nestedPath, expectedThis);
+        var container = ((LsNode)[]).With(nestedPath, expectedThis);
 
         var actualThis = container.Call($"{nestedPath}.identity", new Unit());
 
