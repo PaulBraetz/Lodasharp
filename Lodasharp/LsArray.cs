@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Immutable;
 using System.Text.Json.Nodes;
 
-public sealed class LsArray : IEnumerable<LsNode>
+public sealed class LsArray : IEnumerable<LsNode>, IEquatable<LsArray>
 {
     LsArray(ImmutableArray<LsNode> values) => _values = values;
     private readonly ImmutableArray<LsNode> _values;
@@ -48,4 +48,11 @@ public sealed class LsArray : IEnumerable<LsNode>
             acc.Add(value.ToJson());
             return acc;
         });
+    
+    public override bool Equals(object? obj) => obj is not null && Equals(obj as LsArray);
+    public bool Equals(LsArray? other) => other is not null && _values.SequenceEqual(other._values);
+    public override int GetHashCode() => _values.Aggregate(new HashCode(), (hc, v) => { 
+        hc.Add(v);
+        return hc;
+    }).ToHashCode();
 }
