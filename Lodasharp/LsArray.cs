@@ -4,27 +4,24 @@ using System.Collections;
 using System.Collections.Immutable;
 using System.Text.Json.Nodes;
 
-public sealed class LsArray : IEnumerable<LsNode>, IEquatable<LsArray>
+public sealed class LsArray(ImmutableArray<LsNode> values) : IEnumerable<LsNode>, IEquatable<LsArray>
 {
-    LsArray(ImmutableArray<LsNode> values) => _values = values;
-    private readonly ImmutableArray<LsNode> _values;
-
     public static LsArray Arr(params ReadOnlySpan<LsNode> values) => new(values.ToImmutableArray());
     public static LsArray Arr(params IEnumerable<LsNode> values) => new(values.ToImmutableArray());
-    public IEnumerator<LsNode> GetEnumerator() => ( (IEnumerable<LsNode>)_values ).GetEnumerator();
-    IEnumerator IEnumerable.GetEnumerator() => ( (IEnumerable)_values ).GetEnumerator();
+    public IEnumerator<LsNode> GetEnumerator() => ( (IEnumerable<LsNode>)values ).GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => ( (IEnumerable)values ).GetEnumerator();
 
-    public LsNode Get(Int32 index) => index < _values.Length && index >= 0 ? _values[index] : new Unit();
+    public LsNode Get(Int32 index) => index < values.Length && index >= 0 ? values[index] : new Unit();
     public LsNode With(Int32 index, LsNode value)
     {
-        var paddingWidth = index - _values.Length;
+        var paddingWidth = index - values.Length;
         var padding = paddingWidth > 0
             ? Enumerable.Repeat((LsNode)new Unit(), paddingWidth)
             : [];
 
-        var newItems = index >= _values.Length
-            ? [.. _values, .. padding, value]
-            : _values.SetItem(index, value);
+        var newItems = index >= values.Length
+            ? [.. values, .. padding, value]
+            : values.SetItem(index, value);
         var result = new LsArray(newItems);
 
         return result;
@@ -42,7 +39,7 @@ public sealed class LsArray : IEnumerable<LsNode>, IEquatable<LsArray>
 
         return result;
     }
-    public JsonNode ToJson() => _values.Aggregate(
+    public JsonNode ToJson() => values.Aggregate(
         new JsonArray(),
         (acc, value) =>
         {
