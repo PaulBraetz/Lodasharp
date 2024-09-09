@@ -9,7 +9,7 @@ Todo
 - [ ] Implement JsonPath accessor on existing `LsNode.Get()`
 - [x] Implement lodash `_.at()` function.
 - [ ] Implement static empty instances for LsObject and LsArray
-- [ ] Implement `ToDateTime()` on a LsNode that is a string. Return `Unit` if operation fails.
+- [x] Implement `ToDateTime()` on a LsNode that is a string. Return `Unit` if operation fails.
 
 Wild Ideas
 ---
