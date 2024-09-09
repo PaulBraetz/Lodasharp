@@ -1,11 +1,35 @@
 ﻿namespace Tests;
 
+using System.Text.Json;
+
 using Lodasharp;
 
 using static Lodasharp.LsArray;
 
 public class LsNodeTests
 {
+    [Fact]
+    public void LsNode_serializes_dateTimeOffset()
+    {
+        var expected = DateTimeOffset.MaxValue;
+        LsNode node = expected;
+        var serialized = JsonSerializer.Serialize(node);
+        var deserialized = JsonSerializer.Deserialize<LsNode>(serialized);
+
+        Assert.True(deserialized.IsDateTimeOffset);
+        Assert.Equal(expected, deserialized.AsDateTimeOffset);
+    }
+    [Fact]
+    public void LsNode_serializes_timeSpan()
+    {
+        var expected = TimeSpan.MaxValue;
+        LsNode node = expected;
+        var serialized = JsonSerializer.Serialize(node);
+        var deserialized = JsonSerializer.Deserialize<LsNode>(serialized);
+
+        Assert.True(deserialized.IsTimeSpan);
+        Assert.Equal(expected, deserialized.AsTimeSpan);
+    }
     [Fact]
     public void LsNode_at_yields_array()
     {

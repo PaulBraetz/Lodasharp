@@ -13,8 +13,10 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Diagnostics.CodeAnalysis;
 using System.Collections.Immutable;
+using System.Globalization;
 
 [UnionType<String, Int32, Boolean, Double, LsObject, LsArray, LsFunc, Unit>]
+[UnionType<DateTimeOffset, TimeSpan>]
 [UnionTypeSettings(ToStringSetting = ToStringSetting.None)]
 [CollectionBuilder(typeof(LsObject), nameof(LsObject.Create))]
 [JsonConverter(typeof(Converter))]
@@ -203,10 +205,12 @@ public readonly partial struct LsNode : IEnumerable<(String, LsNode)>
             JsonArray arr => LsArray.FromJson(arr),
             JsonObject obj => LsObject.FromJson(obj),
             JsonValue val =>
-                val.TryGetValue(out String? s) ? s is null ? new Unit() : s :
                 val.TryGetValue(out Int32 i) ? i :
                 val.TryGetValue(out Boolean b) ? b :
                 val.TryGetValue(out Double d) ? d :
+                val.TryGetValue(out DateTimeOffset dateTime) ? dateTime :
+                val.TryGetValue(out String? s) ? s is null ? new Unit() :
+                    TimeSpan.TryParse(s, CultureInfo.InvariantCulture, out var ts) ? ts : s :
                 new Unit(),
             _ => new Unit()
         };
@@ -214,14 +218,16 @@ public readonly partial struct LsNode : IEnumerable<(String, LsNode)>
         return result;
     }
     public JsonNode? ToJson() => Match<JsonNode?>(
-        s => JsonValue.Create(s),
-        i => JsonValue.Create(i),
-        b => JsonValue.Create(b),
-        d => JsonValue.Create(d),
-        c => c.ToJson(),
-        v => v.ToJson(),
-        f => null,
-        u => null);
+        dateTime => JsonValue.Create(dateTime),
+        timeSpan => JsonValue.Create(timeSpan.ToString("G", CultureInfo.InvariantCulture)),
+        @string => JsonValue.Create(@string),
+        @int => JsonValue.Create(@int),
+        @bool => JsonValue.Create(@bool),
+        @double => JsonValue.Create(@double),
+        @object => @object.ToJson(),
+        array => array.ToJson(),
+        func => null,
+        unit => null);
     static readonly JsonSerializerOptions _options = new() { WriteIndented = true, AllowTrailingCommas = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
     public override String ToString() => JsonSerializer.Serialize(this, _options);
     public static LsNode FromString([StringSyntax(StringSyntaxAttribute.Json)] String json) => JsonSerializer.Deserialize<LsNode>(json, _options);
