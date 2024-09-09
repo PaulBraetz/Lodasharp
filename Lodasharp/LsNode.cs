@@ -12,6 +12,7 @@ using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Diagnostics.CodeAnalysis;
+using System.Collections.Immutable;
 
 [UnionType<String, Int32, Boolean, Double, LsObject, LsArray, LsFunc, Unit>]
 [UnionTypeSettings(ToStringSetting = ToStringSetting.None)]
@@ -123,6 +124,27 @@ public readonly partial struct LsNode : IEnumerable<(String, LsNode)>
         }
     }
     public LsNode Get(Path path) => GetCore(path, out _);
+    public LsNode At(params ReadOnlySpan<Path> paths)
+    {
+        var valuesBuilder = ImmutableArray.CreateBuilder<LsNode>();
+        foreach(var path in paths)
+        {
+            var value = Get(path);
+            valuesBuilder.Add(value);
+        }
+
+        var values = valuesBuilder.ToImmutable();
+        var result = Arr(values);
+
+        return result;
+    }
+    public LsNode At(params IEnumerable<Path> paths)
+    {
+        var values = paths.Select(Get);
+        var result = Arr(values);
+
+        return result;
+    }
     public LsNode With(Path path, LsNode value)
     {
         if(path.IsInt32)
