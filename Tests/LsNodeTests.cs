@@ -1,11 +1,4 @@
 ﻿namespace Tests;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 using Lodasharp;
 
@@ -38,7 +31,7 @@ public class LsNodeTests
     {
         LsNode node = [("a", 1), ("b", Arr([("d", 2)])), ("c", 3)];
 
-        var actual = node.At("b.0.d","a");
+        var actual = node.At("b.0.d", "a");
 
         Assert.True(actual.IsLsArray);
         Assert.Equal(actual.AsLsArray, Arr(2, 1));
