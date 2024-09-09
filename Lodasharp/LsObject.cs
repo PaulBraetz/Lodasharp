@@ -7,7 +7,7 @@ using System.Text.Json.Nodes;
 using System.Xml.Linq;
 
 [CollectionBuilder(typeof(LsObject), nameof(Obj))]
-public sealed class LsObject : IEnumerable<(String, LsNode)>
+public sealed class LsObject : IEnumerable<(String, LsNode)>, IEquatable<LsObject>
 {
     private readonly IImmutableDictionary<String, LsNode> _props;
 
@@ -98,4 +98,25 @@ public sealed class LsObject : IEnumerable<(String, LsNode)>
 
         return result;
     }
+    
+    public override bool Equals(object? obj) => obj is not null && Equals(obj as LsObject);
+
+    public bool Equals(LsObject? other)
+    {
+        if (other is null) return false;
+        if (other._props.Count != _props.Count) return false;
+
+        foreach ((string? key, LsNode value) in _props)
+        {
+            if (!other._props.TryGetValue(key, out JsNode otherValue)) return false;
+            if (!value.Equals(otherValue)) return false;
+        }
+        return true;
+    }
+
+    public override int GetHashCode() => _props.Aggregate(new HashCode(), (hc, kvp) =>
+    {
+        hc.Add(HashCode.Combine(kvp.Key, kvp.Value));
+        return hc;
+    }).ToHashCode();
 }

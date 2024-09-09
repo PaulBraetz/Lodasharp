@@ -4,8 +4,10 @@ using System.Collections;
 using System.Collections.Immutable;
 using System.Text.Json.Nodes;
 
-public sealed class LsArray(ImmutableArray<LsNode> values) : IEnumerable<LsNode>
+public sealed class LsArray(ImmutableArray<LsNode> values) : IEnumerable<LsNode>, IEquatable<LsArray>
 {
+    protected ImmutableArray<LsNode> Values => values;
+
     public static LsArray Arr(params ReadOnlySpan<LsNode> values) => new(values.ToImmutableArray());
     public static LsArray Arr(params IEnumerable<LsNode> values) => new(values.ToImmutableArray());
     public IEnumerator<LsNode> GetEnumerator() => ( (IEnumerable<LsNode>)values ).GetEnumerator();
@@ -46,4 +48,11 @@ public sealed class LsArray(ImmutableArray<LsNode> values) : IEnumerable<LsNode>
             acc.Add(value.ToJson());
             return acc;
         });
+    
+    public override Boolean Equals(Object? obj) => obj is not null && Equals(obj as LsArray);
+    public Boolean Equals(LsArray? other) => other is not null && Values.SequenceEqual(other.Values);
+    public override Int32 GetHashCode() => Values.Aggregate(new HashCode(), (hc, v) => { 
+        hc.Add(v);
+        return hc;
+    }).ToHashCode();
 }
