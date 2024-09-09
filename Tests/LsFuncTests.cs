@@ -1,10 +1,6 @@
 namespace Tests;
 
-using System.ComponentModel;
-
 using Lodasharp;
-
-using Microsoft.VisualStudio.TestPlatform.Common.Filtering;
 
 public class LsFuncTests
 {
