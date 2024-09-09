@@ -198,6 +198,28 @@ public readonly partial struct LsNode : IEnumerable<(String, LsNode)>
     }
     public LsNode Call(LsNode arg) => TryAsLsFunc(out var f) ? f.Invoke(new Unit(), arg) : new Unit();
     public LsNode Call(Path path, LsNode arg) => GetCore(path, out var parent).TryAsLsFunc(out var f) ? f.Invoke(parent, arg) : new Unit();
+    public LsNode Bind(Func<String, LsNode>? onString = null, Func<LsNode, LsNode>? onElse = null) => Bind<String>(onString, onElse);
+    public LsNode Bind(Func<Unit, LsNode>? onUnit = null, Func<LsNode, LsNode>? onElse = null) => Bind<Unit>(onUnit, onElse);
+    public LsNode Bind(Func<Int32, LsNode>? onInt32 = null, Func<LsNode, LsNode>? onElse = null) => Bind<Int32>(onInt32, onElse);
+    public LsNode Bind(Func<Boolean, LsNode>? onBoolean = null, Func<LsNode, LsNode>? onElse = null) => Bind<Boolean>(onBoolean, onElse);
+    public LsNode Bind(Func<Double, LsNode>? onDouble = null, Func<LsNode, LsNode>? onElse = null) => Bind<Double>(onDouble, onElse);
+    public LsNode Bind(Func<LsObject, LsNode>? onLsObject = null, Func<LsNode, LsNode>? onElse = null) => Bind<LsObject>(onLsObject, onElse);
+    public LsNode Bind(Func<LsArray, LsNode>? onLsArray = null, Func<LsNode, LsNode>? onElse = null) => Bind<LsArray>(onLsArray, onElse);
+    public LsNode Bind(Func<LsFunc, LsNode>? onLsFunc = null, Func<LsNode, LsNode>? onElse = null) => Bind<LsFunc>(onLsFunc, onElse);
+    public LsNode Bind(Func<DateTimeOffset, LsNode>? onDateTimeOffset = null, Func<LsNode, LsNode>? onElse = null) => Bind<DateTimeOffset>(onDateTimeOffset, onElse);
+    public LsNode Bind(Func<TimeSpan, LsNode>? onTimeSpan = null, Func<LsNode, LsNode>? onElse = null) => Bind<TimeSpan>(onTimeSpan, onElse);
+    public LsNode Bind<T>(Func<T, LsNode>? onValue = null, Func<LsNode, LsNode>? onElse = null)
+    {
+        var isValue = Is<T>();
+
+        if(onValue is { } && isValue)
+            return onValue.Invoke(As<T>());
+
+        if(onElse is { } && !isValue)
+            return onElse.Invoke(this);
+
+        return this;
+    }
     public static LsNode FromJson(JsonNode? node)
     {
         LsNode result = node switch
