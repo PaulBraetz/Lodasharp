@@ -14,6 +14,7 @@ using static Lodasharp.LsArray;
 public class LsNodeTests
 {
     [Fact]
+<<<<<<< HEAD
     public void LsNode_at_yields_array()
     {
         LsNode node = [];
@@ -42,6 +43,38 @@ public class LsNodeTests
 
         Assert.True(actual.IsLsArray);
         Assert.Equal(actual.AsLsArray, Arr(2, 1));
+=======
+    public void LsObject_equals_structurally_equivalent_object()
+    {
+        LsObject a = [("a", 1), ("b", 2)];
+        LsObject b = [("a", 1), ("b", 2)];
+
+        Assert.Equal(a, b);
+    }
+    [Fact]
+    public void LsObject_not_equals_structurally_inequivalent_object()
+    {
+        LsObject a = [("a", 1), ("b", 2)];
+        LsObject b = [("a", 1)];
+
+        Assert.NotEqual(a, b);
+    }
+    [Fact]
+    public void LsObject_equals_structurally_equivalent_object_out_of_order()
+    {
+        LsObject a = [("a", 1), ("b", 2)];
+        LsObject b = [("b", 2), ("a", 1)];
+
+        Assert.Equal(a, b);
+    }
+    [Fact]
+    public void LsObject_equals_structurally_equivalent_object_nested()
+    {
+        LsObject a = [("a", 1), ("b", [("c", 3)])];
+        LsObject b = [("a", 1), ("b", [("c", 3)])];
+
+        Assert.Equal(a, b);
+>>>>>>> d018236 (add tests)
     }
     [Fact]
     public void LsNode_with_invalid_Lson_returns_new_string_value()
