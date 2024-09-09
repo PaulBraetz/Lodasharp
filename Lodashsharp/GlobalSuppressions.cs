@@ -5,4 +5,4 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("RhoMicro.CodeAnalysis.UnionsGenerator", "RUG0008:Union Type Option Ignored", Justification = "<Pending>", Scope = "type", Target = "~T:JsNode")]
+[assembly: SuppressMessage("RhoMicro.CodeAnalysis.UnionsGenerator", "RUG0008:Union Type Option Ignored", Justification = "<Pending>", Scope = "type", Target = "~T:LsNode")]
