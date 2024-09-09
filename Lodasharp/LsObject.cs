@@ -108,7 +108,7 @@ public sealed class LsObject : IEnumerable<(String, LsNode)>, IEquatable<LsObjec
 
         foreach ((string? key, LsNode value) in _props)
         {
-            if (!other._props.TryGetValue(key, out JsNode otherValue)) return false;
+            if (!other._props.TryGetValue(key, out LsNode otherValue)) return false;
             if (!value.Equals(otherValue)) return false;
         }
         return true;
