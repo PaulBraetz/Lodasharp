@@ -10,6 +10,7 @@ public sealed class LsArray : IEnumerable<LsNode>, IEquatable<LsArray>
     private readonly ImmutableArray<LsNode> _values;
 
     public static LsArray Arr(params ReadOnlySpan<LsNode> values) => new(values.ToImmutableArray());
+    public static LsArray Arr(params IEnumerable<LsNode> values) => new(values.ToImmutableArray());
     public IEnumerator<LsNode> GetEnumerator() => ( (IEnumerable<LsNode>)_values ).GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => ( (IEnumerable)_values ).GetEnumerator();
 
