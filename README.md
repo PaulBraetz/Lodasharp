@@ -11,6 +11,9 @@ Todo
 - [x] Implement lodash `_.at()` function.
 - [ ] Implement static empty instances for LsObject and LsArray
 - [x] Implement `ToDateTime()` on a LsNode that is a string. Return `Unit` if operation fails.
+- [ ] Add dotnet object escape hatch representable node type (with casting methods etc.)
+- [ ] - lodash functions to implement:
+  - [ ] https://lodash.com/docs/4.17.15#pick 
 
 Wild Ideas
 ---
