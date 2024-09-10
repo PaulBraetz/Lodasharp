@@ -98,23 +98,28 @@ public sealed class LsObject : IEnumerable<(String, LsNode)>, IEquatable<LsObjec
 
         return result;
     }
-    
-    public override bool Equals(object? obj) => obj is not null && Equals(obj as LsObject);
 
-    public bool Equals(LsObject? other)
+    public override Boolean Equals(Object? obj) => obj is not null && Equals(obj as LsObject);
+
+    public Boolean Equals(LsObject? other)
     {
-        if (other is null) return false;
-        if (other._props.Count != _props.Count) return false;
+        if(other is null)
+            return false;
+        if(other._props.Count != _props.Count)
+            return false;
 
-        foreach ((string? key, LsNode value) in _props)
+        foreach(var (key, value) in _props)
         {
-            if (!other._props.TryGetValue(key, out LsNode otherValue)) return false;
-            if (!value.Equals(otherValue)) return false;
+            if(!other._props.TryGetValue(key, out var otherValue))
+                return false;
+            if(!value.Equals(otherValue))
+                return false;
         }
+
         return true;
     }
 
-    public override int GetHashCode() => _props.Aggregate(new HashCode(), (hc, kvp) =>
+    public override Int32 GetHashCode() => _props.Aggregate(new HashCode(), (hc, kvp) =>
     {
         hc.Add(HashCode.Combine(kvp.Key, kvp.Value));
         return hc;
