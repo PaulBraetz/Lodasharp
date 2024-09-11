@@ -13,6 +13,7 @@ public sealed class LsObject : IEnumerable<(String, LsNode)>, IEquatable<LsObjec
 
     private LsObject(IImmutableDictionary<String, LsNode> props) => _props = props;
     public static LsNode Create(params ReadOnlySpan<(String, LsNode)> values) => Obj(values);
+    public static LsObject Empty => new(ImmutableDictionary<String, LsNode>.Empty);
     public static LsObject Obj(params ReadOnlySpan<(String, LsNode)> values)
     {
         var props = values

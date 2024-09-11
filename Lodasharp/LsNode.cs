@@ -55,6 +55,8 @@ public readonly partial struct LsNode : IEnumerable<(String, LsNode)>
         }
     }
 
+    public static LsNode Empty => [];
+
     public IEnumerator<(String, LsNode)> GetEnumerator() =>
         ( IsUnit
         ? []
