@@ -7,8 +7,8 @@ public class LsFuncTests
     [Fact]
     public void This_parameter_is_contextual_direct_parent()
     {
-        LsNode expectedThis = [("a","foo")];
-        LsFunc identity = (@this,_)=>@this;
+        LsNode expectedThis = [("a", "foo")];
+        LsFunc identity = (@this, _) => @this;
         expectedThis = expectedThis.With("identity", identity);
 
         var actualThis = expectedThis.Call("identity", new Unit());
@@ -42,7 +42,7 @@ public class LsFuncTests
         LsFunc identity = (@this, _) => @this;
         expectedThis = expectedThis.With("identity", identity);
 
-        var container = ((LsNode)[]).With(nestedPath, expectedThis);
+        var container = ( (LsNode)[] ).With(nestedPath, expectedThis);
 
         var actualThis = container.Call($"{nestedPath}.identity", new Unit());
 

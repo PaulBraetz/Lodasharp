@@ -51,8 +51,8 @@ public sealed class LsArray(ImmutableArray<LsNode> values) : IEnumerable<LsNode>
 
     public override Boolean Equals(Object? obj) => obj is not null && Equals(obj as LsArray);
     public Boolean Equals(LsArray? other) => other is not null && Values.SequenceEqual(other.Values);
-    public override Int32 GetHashCode() => Values.Aggregate(new HashCode(), (hc, v) => 
-    { 
+    public override Int32 GetHashCode() => Values.Aggregate(new HashCode(), (hc, v) =>
+    {
         hc.Add(v);
         return hc;
     }).ToHashCode();
