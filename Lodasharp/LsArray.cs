@@ -13,6 +13,8 @@ public sealed class LsArray(ImmutableArray<LsNode> values) : IEnumerable<LsNode>
     public IEnumerator<LsNode> GetEnumerator() => ( (IEnumerable<LsNode>)values ).GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => ( (IEnumerable)values ).GetEnumerator();
 
+    public static LsArray Empty => new([]);
+    
     public LsNode Get(Int32 index) => index < values.Length && index >= 0 ? values[index] : new Unit();
     public LsNode With(Int32 index, LsNode value)
     {
