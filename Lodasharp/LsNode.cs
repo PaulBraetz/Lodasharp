@@ -41,7 +41,7 @@ public readonly partial struct LsNode : IEnumerable<(String, LsNode)>
         }
     }
 
-    public static LsNode Create([UnionTypeFactory] String value)
+    public static LsNode Create([StringSyntax(StringSyntaxAttribute.Json)] [UnionTypeFactory] String value)
     {
         if(value.StartsWith('$'))
             return new LsNode(value[1..]);
@@ -54,8 +54,6 @@ public readonly partial struct LsNode : IEnumerable<(String, LsNode)>
             return new LsNode(value);
         }
     }
-
-    public static LsNode Empty => [];
 
     public IEnumerator<(String, LsNode)> GetEnumerator() =>
         ( IsUnit
@@ -254,5 +252,4 @@ public readonly partial struct LsNode : IEnumerable<(String, LsNode)>
         unit => null);
     static readonly JsonSerializerOptions _options = new() { WriteIndented = true, AllowTrailingCommas = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
     public override String ToString() => JsonSerializer.Serialize(this, _options);
-    public static LsNode FromString([StringSyntax(StringSyntaxAttribute.Json)] String json) => JsonSerializer.Deserialize<LsNode>(json, _options);
 }
