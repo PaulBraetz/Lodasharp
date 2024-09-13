@@ -4,6 +4,23 @@ using Lodasharp;
 
 public class LsObjectTests
 {
+    
+    [Fact]
+    public void LsObject_empty_creates_empty_object()
+    {
+        var emptyNode = LsObject.Empty;
+        var expected = LsObject.Create();
+        Assert.Equal(expected, emptyNode);
+    }
+    
+    [Fact]
+    public void LsNode_empty_not_equal_to_populated()
+    {
+        var emptyNode = LsObject.Empty;
+        LsObject expected = [("bar", "baz")];
+        Assert.NotEqual(expected, emptyNode);
+    }
+    
     [Fact]
     public void LsObject_equals_structurally_equivalent_object()
     {
